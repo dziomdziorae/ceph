@@ -8,10 +8,43 @@ from .. import mgr
 from ..exceptions import DashboardException, UserAlreadyExists, \
     UserDoesNotExist
 from ..security import Scope
-from ..services.access_control import SYSTEM_ROLES
+from ..services.access_control import SYSTEM_ROLES, PasswordCheck
 from ..services.auth import JwtManager
 
+# minimum password complexity rules
+def check_password_complexity(password, username, previous_password=None):
+    check_password_complexity = PasswordCheck(password, username)
+    if previous_password:
+        if check_password_complexity.check_ifAsPreviousOne(previous_password):
+            raise DashboardException(msg='Password is the same\
+                                          as previous one.',
+                                     code='not-strong-enough-password',
+                                     component='Update/Create user')
+    if check_password_complexity.check_ifContainsUsername():
+        raise DashboardException(msg='Password is contains username,\
+                                      which is forbidden.',
+                                 code='not-strong-enough-password',
+                                 component='Update/Create user')
+    elif check_password_complexity.check_ifContainsForbiddenWords():
+        raise DashboardException(msg='Password is contains keywords.',
+                                 code='not-strong-enough-password',
+                                 component='Update/Create user')
+    elif check_password_complexity.check_ifRepetitiveCharacters():
+        raise DashboardException(msg='Password contains repetitive\
+                                      characters.',
+                                 code='not-strong-enough-password',
+                                 component='Update/Create user')
+    elif check_password_complexity.check_ifSequentialCharacters():
+        raise DashboardException(msg='Password contains sequential\
+                                      characters.',
+                                 code='not-strong-enough-password',
+                                 component='Update/Create user')
+    elif check_password_complexity.check_PasswordCharacters() < 10:
+        raise DashboardException(msg='Password is too weak.',
+                                 code='not-strong-enough-password',
+                                 component='Update/Create user')
 
+ 
 @ApiController('/user', Scope.USER)
 class User(RESTController):
     @staticmethod
@@ -52,6 +85,8 @@ class User(RESTController):
         if roles:
             user_roles = User._get_user_roles(roles)
         try:
+            if password:
+                check_password_complexity(password, username)
             user = mgr.ACCESS_CTRL_DB.create_user(username, password, name, email)
         except UserAlreadyExists:
             raise DashboardException(msg='Username already exists',
@@ -83,6 +118,7 @@ class User(RESTController):
         if roles:
             user_roles = User._get_user_roles(roles)
         if password:
+            check_password_complexity(password, username, user.password)
             user.set_password(password)
         user.name = name
         user.email = email
