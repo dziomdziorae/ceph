@@ -389,3 +389,30 @@ h3.page-header {
   padding-left: 1em;
   margin: 0;
 }
+
+//Displaying the password strength
+#passwordStrengthLevel {
+  height: 13px;
+  display: block;
+}
+.passwordStrengthLevel0 {
+  width: 250px;
+  background: $color-solid-white;
+}
+.passwordStrengthLevel1 {
+  width: 40px;
+  background: $color-solid-red;
+}
+.passwordStrengthLevel2 {
+  width: 75px;
+  background: $color-bright-yellow;
+}
+.passwordStrengthLevel3 {
+  width: 150px;
+  background: $color-bright-green;
+}
+.passwordStrengthLevel4 {
+  width: 250px;
+  background: $color-green;
+}
+
