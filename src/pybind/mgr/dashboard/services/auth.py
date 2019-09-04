@@ -127,7 +127,9 @@ class AuthManager(object):
     @classmethod
     def authorize(cls, username, scope, permissions):
         return cls.AUTH_PROVIDER.authorize(username, scope, permissions)
-
+    @classmethod
+    def check_force_change_pwd(cls, username):
+        return cls.AUTH_PROVIDER.check_force_change_pwd(username)
 
 class AuthManagerTool(cherrypy.Tool):
     def __init__(self):
