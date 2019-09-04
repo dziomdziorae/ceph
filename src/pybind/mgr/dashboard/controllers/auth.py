@@ -28,7 +28,8 @@ class Auth(RESTController):
             return {
                 'token': token,
                 'username': username,
-                'permissions': user_perms
+                'permissions': user_perms,
+                'force_change_pwd': AuthManager.check_force_change_pwd(username)
             }
 
         logger.debug('Login failed')
